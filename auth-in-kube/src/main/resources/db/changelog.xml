@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+    <changeSet id="AINK_01" author="TRTHHRTS">
+        <createTable tableName="users">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" primaryKeyName="user_id_pk" />
+            </column>
+            <column name="username" type="varchar(50)">
+                <constraints unique="true" uniqueConstraintName="user_username_unq" />
+            </column>
+            <column name="password" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="balance" type="bigint" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="activated" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createTable tableName="authority">
+            <column name="NAME" type="varchar(50)">
+                <constraints primaryKey="true" primaryKeyName="authority_pk"/>
+            </column>
+        </createTable>
+        <createTable tableName="user_authority">
+            <column name="user_id" type="bigint"/>
+            <column name="authority_name" type="varchar(50)"/>
+        </createTable>
+        <createSequence sequenceName="user_seq" incrementBy="1" startValue="1" />
+
+        <addForeignKeyConstraint baseTableName="user_authority" baseColumnNames="user_id"
+                                 constraintName="user_authority_user_id"
+                                 referencedTableName="users" referencedColumnNames="id" />
+        <addForeignKeyConstraint baseTableName="user_authority" baseColumnNames="authority_name"
+                                 constraintName="user_authority_authority_name"
+                                 referencedTableName="authority" referencedColumnNames="name" />
+    </changeSet>
+
+    <changeSet id="AINK_02" author="TRTHHRTS">
+        <insert tableName="users">
+            <column name="id" value="1"/>
+            <column name="username" value="admin"/>
+            <column name="password" value="$2a$08$lDnHPz7eUkSi6ao14Twuau08mzhWrL4kyZGGU5xfiGALO/Vxd5DOi"/>
+            <column name="email" value="admin@admin.com"/>
+            <column name="activated" value="true"/>
+        </insert>
+        <insert tableName="users">
+            <column name="id" value="2"/>
+            <column name="username" value="user"/>
+            <column name="password" value="$2a$08$UkVvwpULis18S19S5pZFn.YHPZt3oaqHZnDwqbCW9pft6uFtkXKDC"/>
+            <column name="email" value="enabled@user.com"/>
+            <column name="activated" value="true"/>
+        </insert>
+        <insert tableName="users">
+            <column name="id" value="3"/>
+            <column name="username" value="disabled"/>
+            <column name="password" value="$2a$08$UkVvwpULis18S19S5pZFn.YHPZt3oaqHZnDwqbCW9pft6uFtkXKDC"/>
+            <column name="email" value="disabled@user.com"/>
+            <column name="activated" value="false"/>
+        </insert>
+
+        <insert tableName="authority">
+            <column name="name" value="ROLE_USER"/>
+        </insert>
+        <insert tableName="authority">
+            <column name="name" value="ROLE_ADMIN"/>
+        </insert>
+
+        <insert tableName="user_authority">
+            <column name="user_id" value="1"/>
+            <column name="authority_name" value="ROLE_USER"/>
+        </insert>
+        <insert tableName="user_authority">
+            <column name="user_id" value="1"/>
+            <column name="authority_name" value="ROLE_ADMIN"/>
+        </insert>
+        <insert tableName="user_authority">
+            <column name="user_id" value="2"/>
+            <column name="authority_name" value="ROLE_USER"/>
+        </insert>
+        <insert tableName="user_authority">
+            <column name="user_id" value="3"/>
+            <column name="authority_name" value="ROLE_USER"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>
