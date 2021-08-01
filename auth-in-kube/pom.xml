@@ -4,11 +4,11 @@
    <modelVersion>4.0.0</modelVersion>
 
    <groupId>org.trthhrts</groupId>
-   <artifactId>authink</artifactId>
+   <artifactId>auth-in-kube</artifactId>
    <version>0.0.1</version>
    <packaging>jar</packaging>
 
-   <name>authink</name>
+   <name>auth-in-kube</name>
    <description>AuthService in Kube</description>
 
    <parent>
