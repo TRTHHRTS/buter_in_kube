@@ -1,33 +1,28 @@
 package org.trthhrts.rest;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
-import org.trthhrts.security.model.User;
-import org.trthhrts.security.repository.UserRepository;
-import org.trthhrts.security.service.UserService;
+import org.trthhrts.model.User;
+import org.trthhrts.repository.UserRepository;
+import org.trthhrts.service.UserService;
 
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/user")
 @RequiredArgsConstructor
-public class PersonRestController {
+public class UserRestController {
 
    /** Сервис по работе с пользователями */
    private final UserService userService;
-
    /** Источник данных по пользователям */
    private final UserRepository userRepository;
 
-   @GetMapping("/person")
-   public ResponseEntity<User> getPerson() {
-      Optional<User> user = userService.getUserWithAuthorities();
-      if (user.isPresent()) {
-         return ResponseEntity.ok(user.get());
-      }
-      throw new UsernameNotFoundException("Cannot get current username");
+   @GetMapping
+   public ResponseEntity<User> getActualUser() {
+      return ResponseEntity.ok(userService.getUserWithAuthorities().get());
    }
 
    @PutMapping("/balance/{amount}")
@@ -40,5 +35,11 @@ public class PersonRestController {
          user.setBalance(user.getBalance() + amountLong);
          userRepository.save(user);
       });
+   }
+
+   @GetMapping("/id")
+   public ResponseEntity<Long> getId() {
+      Optional<User> user = userService.getUserWithAuthorities();
+      return user.map(value -> ResponseEntity.ok(value.getId())).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
    }
 }

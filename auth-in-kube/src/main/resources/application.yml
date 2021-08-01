@@ -5,7 +5,7 @@ server:
 
 spring:
   liquibase:
-    change-log: db/changelog.xml
+    change-log: classpath:db/changelog.xml
     enabled: true
 
   datasource:

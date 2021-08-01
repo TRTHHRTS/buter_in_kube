@@ -10,8 +10,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.trthhrts.security.model.User;
-import org.trthhrts.security.repository.UserRepository;
+import org.trthhrts.model.User;
+import org.trthhrts.repository.UserRepository;
 
 import java.util.List;
 import java.util.Locale;

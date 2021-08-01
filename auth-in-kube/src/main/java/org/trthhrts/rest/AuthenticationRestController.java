@@ -1,4 +1,4 @@
-package org.trthhrts.security.rest;
+package org.trthhrts.rest;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.http.HttpHeaders;
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.trthhrts.security.rest.dto.LoginDto;
+import org.trthhrts.rest.dto.LoginDto;
 import org.trthhrts.security.jwt.JWTFilter;
 import org.trthhrts.security.jwt.TokenProvider;
 

@@ -1,4 +1,4 @@
-package org.trthhrts.security.model;
+package org.trthhrts.model;
 
 import javax.persistence.*;
 import java.util.Objects;

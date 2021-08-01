@@ -1,4 +1,4 @@
-package org.trthhrts.security.rest.dto;
+package org.trthhrts.rest.dto;
 
 /**
  * DTO for storing a user's credentials.

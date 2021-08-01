@@ -1,10 +1,10 @@
-package org.trthhrts.security.service;
+package org.trthhrts.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.trthhrts.security.SecurityUtils;
-import org.trthhrts.security.model.User;
-import org.trthhrts.security.repository.UserRepository;
+import org.trthhrts.model.User;
+import org.trthhrts.repository.UserRepository;
 
 import java.util.Optional;
 

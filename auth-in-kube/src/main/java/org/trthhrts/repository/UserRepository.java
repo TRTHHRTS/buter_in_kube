@@ -1,8 +1,8 @@
-package org.trthhrts.security.repository;
+package org.trthhrts.repository;
 
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.trthhrts.security.model.User;
+import org.trthhrts.model.User;
 
 import java.util.Optional;
 

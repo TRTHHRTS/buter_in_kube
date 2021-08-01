@@ -1,7 +1,7 @@
-package org.trthhrts.security.repository;
+package org.trthhrts.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.trthhrts.security.model.Authority;
+import org.trthhrts.model.Authority;
 
 /**
  * Spring Data JPA repository for the {@link Authority} entity.

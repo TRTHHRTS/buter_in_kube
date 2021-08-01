@@ -26,26 +26,19 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
    private final JwtAuthenticationEntryPoint authenticationErrorHandler;
    private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
 
-   public WebSecurityConfig(
-      TokenProvider tokenProvider,
-      CorsFilter corsFilter,
-      JwtAuthenticationEntryPoint authenticationErrorHandler,
-      JwtAccessDeniedHandler jwtAccessDeniedHandler
-   ) {
+   public WebSecurityConfig(TokenProvider tokenProvider, CorsFilter corsFilter,
+                            JwtAuthenticationEntryPoint authenticationErrorHandler,
+                            JwtAccessDeniedHandler jwtAccessDeniedHandler) {
       this.tokenProvider = tokenProvider;
       this.corsFilter = corsFilter;
       this.authenticationErrorHandler = authenticationErrorHandler;
       this.jwtAccessDeniedHandler = jwtAccessDeniedHandler;
    }
 
-   // Configure BCrypt password encoder =====================================================================
-
    @Bean
    public PasswordEncoder passwordEncoder() {
       return new BCryptPasswordEncoder();
    }
-
-   // Configure paths and requests that should be ignored by Spring Security ================================
 
    @Override
    public void configure(WebSecurity web) {
@@ -57,8 +50,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             "/favicon.ico",
             "/**/*.html",
             "/**/*.css",
-            "/**/*.js",
-            "/h2-console/**"
+            "/**/*.js"
          );
    }
 
@@ -70,11 +62,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
          .exceptionHandling()
          .authenticationEntryPoint(authenticationErrorHandler)
          .accessDeniedHandler(jwtAccessDeniedHandler)
-         // enable h2-console
-         .and()
-         .headers()
-         .frameOptions()
-         .sameOrigin()
          // create no session
          .and()
          .sessionManagement()
@@ -86,12 +73,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
          // .antMatchers("/api/activate").permitAll()
          // .antMatchers("/api/account/reset-password/init").permitAll()
          // .antMatchers("/api/account/reset-password/finish").permitAll()
-
-         .antMatchers("/api/person").hasAuthority("ROLE_USER")
+         .antMatchers("/api/user").hasAuthority("ROLE_USER")
          .antMatchers("/api/hiddenmessage").hasAuthority("ROLE_ADMIN")
-
          .anyRequest().authenticated()
-
          .and()
          .apply(securityConfigurerAdapter());
    }
