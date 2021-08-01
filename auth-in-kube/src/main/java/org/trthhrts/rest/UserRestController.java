@@ -8,8 +8,6 @@ import org.trthhrts.model.User;
 import org.trthhrts.repository.UserRepository;
 import org.trthhrts.service.UserService;
 
-import java.util.Optional;
-
 @RestController
 @RequestMapping("/api/user")
 @RequiredArgsConstructor
@@ -22,24 +20,41 @@ public class UserRestController {
 
    @GetMapping
    public ResponseEntity<User> getActualUser() {
-      return ResponseEntity.ok(userService.getUserWithAuthorities().get());
+      return ResponseEntity.ok(userService.getUserWithAuthorities());
    }
 
-   @PutMapping("/balance/{amount}")
-   public void depositBalance(@PathVariable String amount) {
-      Long amountLong = Long.parseLong(amount);
-      if (amountLong <= 0) {
-         throw new ArithmeticException("Пополнить можно только положительной суммой");
+   @GetMapping("/balance")
+   public ResponseEntity<Long> getBalance() {
+      return ResponseEntity.ok(userService.getUserWithAuthorities().getBalance());
+   }
+
+   @PutMapping("/balance/deposit/{amount}")
+   public ResponseEntity<String> depositBalance(@PathVariable Long amount) {
+      if (amount <= 0) {
+         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Внести можно только положительную сумму");
       }
-      userService.getUserWithAuthorities().ifPresent(user -> {
-         user.setBalance(user.getBalance() + amountLong);
-         userRepository.save(user);
-      });
+      User user = userService.getUserWithAuthorities();
+      user.setBalance(user.getBalance() + amount);
+      userRepository.save(user);
+      return ResponseEntity.ok("OK");
+   }
+
+   @PutMapping("/balance/withdraw/{amount}")
+   public ResponseEntity<String> withdrawBalance(@PathVariable Long amount) {
+      if (amount <= 0) {
+         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Снять можно только положительную сумму");
+      }
+      User user = userService.getUserWithAuthorities();
+      if (user.getBalance() - amount < 0) {
+         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Недостаточно средств на счете");
+      }
+      user.setBalance(user.getBalance() - amount);
+      userRepository.save(user);
+      return ResponseEntity.ok("OK");
    }
 
    @GetMapping("/id")
    public ResponseEntity<Long> getId() {
-      Optional<User> user = userService.getUserWithAuthorities();
-      return user.map(value -> ResponseEntity.ok(value.getId())).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+      return ResponseEntity.ok(userService.getUserWithAuthorities().getId());
    }
 }
