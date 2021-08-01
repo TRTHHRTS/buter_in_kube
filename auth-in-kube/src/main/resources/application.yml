@@ -1,10 +1,9 @@
 server:
   servlet:
     context-path: /
+  port: 8080
 
-# better readable jackson serialization format
 spring:
-
   liquibase:
     change-log: db/changelog.xml
     enabled: true
@@ -35,4 +34,3 @@ jwt:
 logging:
   level:
     org.trthhrts.security: DEBUG
-#    org.springframework.security: DEBUG
