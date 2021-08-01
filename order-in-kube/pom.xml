@@ -6,6 +6,8 @@
     <groupId>com.trthhrts</groupId>
     <artifactId>order-in-kube</artifactId>
     <version>0.0.1</version>
+    <packaging>jar</packaging>
+
     <name>order-in-kube</name>
     <description>OrderService in Kube</description>
 
