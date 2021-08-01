@@ -9,18 +9,12 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Service
 public class AuthService {
 
-    private final WebClient client;
-
-    @Value("services.auth-service.url")
+    @Value("${services.auth-service.url}")
     private String authUri;
-
-    AuthService() {
-        this.client = WebClient.create(authUri);
-    }
 
     public Long getUserId() {
         String token = getBearerTokenHeader();
-        return client.get()
+        return WebClient.create(authUri).get()
                 .uri( "/api/user/id")
                 .header("Authorization", token)
                 .retrieve()
