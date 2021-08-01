@@ -1,0 +1,10 @@
+server:
+  servlet:
+    context-path: /
+  port: 8083
+
+services:
+  auth-service:
+    url: ${AUTH_SERVICE_URL}
+  order-service:
+    url: ${ORDER_SERVICE_URL}}

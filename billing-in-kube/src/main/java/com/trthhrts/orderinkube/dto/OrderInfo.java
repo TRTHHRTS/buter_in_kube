@@ -1,0 +1,10 @@
+package com.trthhrts.orderinkube.dto;
+
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+public class OrderInfo {
+
+}
