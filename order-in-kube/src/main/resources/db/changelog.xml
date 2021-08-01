@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+    <changeSet id="ORDERINK_01" author="TRTHHRTS">
+        <createTable tableName="buters">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" primaryKeyName="buters_id_pk" />
+            </column>
+            <column name="name" type="varchar(100)">
+                <constraints unique="true" uniqueConstraintName="buter_name_unq" />
+            </column>
+            <column name="desc" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="price" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="quantity" type="int" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createTable tableName="orders">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" primaryKeyName="orders_id_pk" />
+            </column>
+            <column name="status" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="order_date" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="payment_date" type="timestamp">
+                <constraints nullable="true"/>
+            </column>
+            <column name="cost" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createTable tableName="positions">
+            <column name="order_id" type="bigint"/>
+            <column name="buter_id" type="bigint"/>
+            <column name="quantity" type="int"/>
+        </createTable>
+        <addPrimaryKey tableName="positions" columnNames="order_id,buter_id" constraintName="positions_pk" />
+        <addForeignKeyConstraint baseTableName="positions" baseColumnNames="order_id"
+                                 constraintName="order_positions_order_id"
+                                 referencedTableName="orders" referencedColumnNames="id" />
+        <addForeignKeyConstraint baseTableName="positions" baseColumnNames="buter_id"
+                                 constraintName="order_positions_buter_id"
+                                 referencedTableName="buters" referencedColumnNames="id" />
+    </changeSet>
+
+    <changeSet id="ORDERINK_02" author="TRTHHRTS">
+        <insert tableName="buters">
+            <column name="id" value="1"/>
+            <column name="name" value="Классический бутер"/>
+            <column name="price" value="200"/>
+            <column name="quantity" value="10"/>
+        </insert>
+        <insert tableName="buters">
+            <column name="id" value="2"/>
+            <column name="name" value="Неаполитанский бутер"/>
+            <column name="price" value="140"/>
+            <column name="quantity" value="5"/>
+        </insert>
+        <insert tableName="buters">
+            <column name="id" value="3"/>
+            <column name="name" value="Мексиканский бутер"/>
+            <column name="price" value="330"/>
+            <column name="quantity" value="33"/>
+        </insert>
+        <insert tableName="buters">
+            <column name="id" value="4"/>
+            <column name="name" value="Старославянский бутер"/>
+            <column name="price" value="404"/>
+            <column name="quantity" value="50"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

@@ -1,0 +1,20 @@
+server:
+  servlet:
+    context-path: /
+  port: 8082
+
+spring:
+  liquibase:
+    change-log: classpath:db/changelog.xml
+    enabled: true
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${DATASOURCE_URL}
+    username: ${DATASOURCE_USER}
+    password: ${DATASOURCE_PASSWORD}
+
+
+services:
+  auth-service:
+    url: ${AUTH_SERVICE_URL}
