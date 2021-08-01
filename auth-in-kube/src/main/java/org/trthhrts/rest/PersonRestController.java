@@ -1,35 +1,44 @@
 package org.trthhrts.rest;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.bind.annotation.*;
+import org.trthhrts.security.model.User;
+import org.trthhrts.security.repository.UserRepository;
+import org.trthhrts.security.service.UserService;
+
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
+@RequiredArgsConstructor
 public class PersonRestController {
 
+   /** Сервис по работе с пользователями */
+   private final UserService userService;
+
+   /** Источник данных по пользователям */
+   private final UserRepository userRepository;
+
    @GetMapping("/person")
-   public ResponseEntity<Person> getPerson() {
-      return ResponseEntity.ok(new Person("John Doe", "john.doe@test.org"));
+   public ResponseEntity<User> getPerson() {
+      Optional<User> user = userService.getUserWithAuthorities();
+      if (user.isPresent()) {
+         return ResponseEntity.ok(user.get());
+      }
+      throw new UsernameNotFoundException("Cannot get current username");
    }
 
-   private static class Person {
-
-      private final String name;
-      private final String email;
-
-      public Person(String name, String email) {
-         this.name = name;
-         this.email = email;
+   @PutMapping("/balance/{amount}")
+   public void depositBalance(@PathVariable String amount) {
+      Long amountLong = Long.parseLong(amount);
+      if (amountLong <= 0) {
+         throw new ArithmeticException("Пополнить можно только положительной суммой");
       }
-
-      public String getName() {
-         return name;
-      }
-
-      public String getEmail() {
-         return email;
-      }
+      userService.getUserWithAuthorities().ifPresent(user -> {
+         user.setBalance(user.getBalance() + amountLong);
+         userRepository.save(user);
+      });
    }
 }
