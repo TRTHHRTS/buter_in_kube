@@ -52,6 +52,8 @@ public class OrderController {
       Order order = new Order();
       order.setUserId(userId);
       order.setOrderDate(LocalDateTime.now());
+
+      long cost = 0;
       List<Position> positions = new ArrayList<>();
       for (PositionsInfo info : posInfos) {
          Buter buter = buterRepository.findById(info.getButerId())
@@ -59,10 +61,12 @@ public class OrderController {
          if (buter.getQuantity() < info.getQuantity()) {
             throw new RuntimeException("Бутеров с id=" + info.getButerId() + " недостаточно.");
          }
-         positions.add(new Position(buter.getId(), info.getQuantity()));
+         cost += buter.getPrice() * info.getQuantity();
+         positions.add(new Position(order, buter.getId(), info.getQuantity()));
       }
       order.setPositions(positions);
       order.setStatus(OrderStatus.NEW.name());
+      order.setCost(cost);
       orderRepository.save(order);
       return ResponseEntity.ok(order.getId());
    }

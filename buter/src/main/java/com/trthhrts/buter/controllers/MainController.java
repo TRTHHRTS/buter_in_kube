@@ -27,10 +27,15 @@ public class MainController {
 
     @GetMapping("/")
     public String index(Model model) {
-        model.addAttribute("eventName", "buter");
         model.addAttribute("buters", orderService.getButers());
         model.addAttribute("authServiceUrl", authUri);
         return "index";
+    }
+
+    @GetMapping("/orders")
+    public String orders(Model model) {
+        model.addAttribute("orders", orderService.getOrders());
+        return "orders";
     }
 
     @PostMapping("/order")
@@ -43,7 +48,7 @@ public class MainController {
         for (Integer buterId : createOrderInfo.keySet()) {
             positions.add(new PositionsInfo(buterId, createOrderInfo.get(buterId)));
         }
-        System.out.println(orderService.createOrder(positions));
+        orderService.createOrder(positions);
         return ResponseEntity.ok("OK");
     }
 }

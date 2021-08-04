@@ -1,30 +1,37 @@
 package com.trthhrts.orderinkube.model;
 
-import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
 
 @Entity
 @Table(name = "positions")
-@IdClass(PositionId.class)
 @Getter
 @Setter
+@NoArgsConstructor
 public class Position {
 
     @Id
-    @Column(name = "buter_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(nullable = false)
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name="order_id", nullable=false)
+    @JsonIgnore
+    private Order order;
+
+    @Column(name = "buter_id", nullable=false)
     private Long buterId;
 
-    @Id
-    @Column(name = "order_id")
-    private Long orderId;
-
-    @Column
+    @Column(nullable=false)
     private int quantity;
 
-    public Position(Long buterId, int quantity) {
+    public Position(Order order, Long buterId, int quantity) {
+        this.order = order;
         this.buterId = buterId;
         this.quantity = quantity;
     }

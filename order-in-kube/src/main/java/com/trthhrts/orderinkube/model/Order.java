@@ -15,25 +15,25 @@ import java.util.List;
 public class Order {
 
     @Id
-    @Column
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(nullable = false)
     private Long id;
 
-    @Column
+    @Column(nullable = false)
     private String status;
 
-    @Column
+    @Column(nullable = false)
     private LocalDateTime orderDate;
 
     @Column
     private LocalDateTime paymentDate;
 
-    @Column
+    @Column(nullable = false)
     private Long cost;
 
-    @Column
+    @Column(nullable = false)
     private Long userId;
 
-    @OneToMany
+    @OneToMany(mappedBy="order", cascade = CascadeType.MERGE)
     private List<Position> positions = new ArrayList<>();
 }

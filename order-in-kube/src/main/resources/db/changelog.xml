@@ -4,7 +4,7 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
     <changeSet id="ORDERINK_01" author="TRTHHRTS">
         <createTable tableName="buters">
-            <column name="id" type="bigint">
+            <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="buters_id_pk" />
             </column>
             <column name="name" type="varchar(100)">
@@ -21,7 +21,7 @@
             </column>
         </createTable>
         <createTable tableName="orders">
-            <column name="id" type="bigint">
+            <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="orders_id_pk" />
             </column>
             <column name="status" type="varchar(50)">
@@ -41,11 +41,13 @@
             </column>
         </createTable>
         <createTable tableName="positions">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="positions_id_pk" />
+            </column>
             <column name="order_id" type="bigint"/>
             <column name="buter_id" type="bigint"/>
             <column name="quantity" type="int"/>
         </createTable>
-        <addPrimaryKey tableName="positions" columnNames="order_id,buter_id" constraintName="positions_pk" />
         <addForeignKeyConstraint baseTableName="positions" baseColumnNames="order_id"
                                  constraintName="order_positions_order_id"
                                  referencedTableName="orders" referencedColumnNames="id" />
