@@ -3,11 +3,251 @@
 <head>
     <meta charset="UTF-8">
     <title>BUTER IN KUBE</title>
+
+    <link th:rel="stylesheet" th:href="@{webjars/bootstrap/5.0.2/css/bootstrap.min.css} "/>
 </head>
 <body>
-<div class="lead">
-  <strong>Name of Event:</strong>
-  <span th:text="${eventName}"></span>
+<div class="container">
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">Главная</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="orders-tab" data-bs-toggle="tab" data-bs-target="#orders" type="button" role="tab" aria-controls="orders" aria-selected="false">Мои заказы</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="info-tab" data-bs-toggle="tab" data-bs-target="#info" type="button" role="tab" aria-controls="info" aria-selected="false">Инфо</button>
+        </li>
+    </ul>
+    <div class="tab-content">
+        <div class="tab-pane active" id="home" role="tabpanel" aria-labelledby="home-tab">
+
+            <div class="alert alert-danger" id="notLoggedIn">Not logged in!</div>
+            <div class="alert alert-info text-hidden" id="loggedIn"></div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="panel panel-default" id="login">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Войти</h3>
+                        </div>
+                        <div class="panel-body">
+                            <form id="loginForm">
+                                <div class="form-group m-1">
+                                    <input type="text" class="form-control" id="exampleInputEmail1" placeholder="username"
+                                           required name="username">
+                                </div>
+                                <div class="form-group m-1">
+                                    <input type="password" class="form-control" id="exampleInputPassword1"
+                                           placeholder="password" required name="password">
+                                </div>
+                                <div class="well">
+                                    Тестовые варианты
+                                    <ul>
+                                        <li>admin & admin</li>
+                                        <li>user & password</li>
+                                        <li>disabled & password</li>
+                                    </ul>
+                                </div>
+                                <button type="submit" class="btn btn-primary">login</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center">
+                <h1>меню</h1>
+            </div>
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Название</th>
+                    <th>Описание</th>
+                    <th>Количество</th>
+                    <th>Цена</th>
+                    <th>Добавить в заказ</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="buter: ${buters}" th:id="${buter.id}">
+                    <td th:text="${buter.id}"></td>
+                    <td th:id='${buter.id + "_name"}' th:text="${buter.name}"></td>
+                    <td th:text="${buter.desc}"></td>
+                    <td th:text="${buter.quantity}"></td>
+                    <td th:text="${buter.price}"></td>
+                    <td><button type="button" class="btn btn-success" th:value="${buter.id}" th:onclick="addToOrder(this.value)">Добавить</button></td>
+                </tr>
+                </tbody>
+            </table>
+            <div class="text-center">
+                <h2>Ваш заказ</h2>
+                <ul id="orderList" class="list-group text-center"></ul>
+                <button type="button" class="btn btn-primary" th:onclick="createOrder()">Заказать</button>
+            </div>
+        </div>
+        <div class="tab-pane" id="orders" role="tabpanel" aria-labelledby="orders-tab">
+            <div class="container m-2">
+                <button type="button" class="btn btn-info">Загрузить список заказов</button>
+            </div>
+            <div class="text-center">
+                <h1>История заказов</h1>
+            </div>
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Статус</th>
+                    <th>Сумма</th>
+                    <th>Дата заказа</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="order: ${orders}">
+                    <td th:text="${order.id}"></td>
+                    <td th:text="${order.status}"></td>
+                    <td th:text="${buter.price}"></td>
+                    <td th:text="${order.orderDate}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="tab-pane" id="info" role="tabpanel" aria-labelledby="orders-tab">
+            <div id="authServiceUrl" th:text="${authServiceUrl}"></div>
+        </div>
+    </div>
 </div>
+
+<script th:src="@{/webjars/jquery/3.6.0/jquery.min.js}"></script>
+<script th:src="@{/webjars/popper.js/2.9.2/umd/popper.min.js}"></script>
+<script th:src="@{/webjars/bootstrap/5.0.2/js/bootstrap.min.js}"></script>
+
+<script>
+    let order = {};
+
+    addToOrder = function (id) {
+        order[id] = order[id] ? order[id] + 1 : 1;
+        const liText = $(`td#${id}_name`)[0].innerHTML + `(${order[id]})`;
+        if ($(`#order_pos_${id}`)[0]) {
+            $(`#order_pos_${id}`)[0].innerHTML = liText;
+        } else {
+            $("#orderList").append(`<li id='order_pos_${id}' class="list-group-item">${liText}</li>`);
+        }
+    }
+
+    createOrder = function () {
+        $.ajax({
+            type: "POST",
+            url: "/order",
+            contentType: "application/json",
+            data: JSON.stringify(order),
+            success: function (data, textStatus, jqXHR) {
+                order = {};
+                $("#orderList li").remove();
+                alert("Заказ создан, спасибо! Мы уже начали его обрабатывать.");
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert("Что-то пошло не так: " + jqXHR.status);
+            },
+            dataType: "text"
+        });
+    }
+
+    $(function () {
+        // VARIABLES =============================================================
+        var TOKEN_KEY = "jwtToken"
+        var $notLoggedIn = $("#notLoggedIn");
+        var $loggedIn = $("#loggedIn").hide();
+        var $login = $("#login");
+
+        // FUNCTIONS =============================================================
+        function getJwtToken() {
+            return localStorage.getItem(TOKEN_KEY);
+        }
+
+        function setJwtToken(token) {
+            localStorage.setItem(TOKEN_KEY, token);
+        }
+
+        function removeJwtToken() {
+            localStorage.removeItem(TOKEN_KEY);
+        }
+
+        function doLogin(loginData) {
+            const authUrl = $("#authServiceUrl")[0].innerHTML;
+            $.ajax({
+                url: authUrl + "/api/authenticate",
+                type: "POST",
+                data: JSON.stringify(loginData),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, textStatus, jqXHR) {
+                    setJwtToken(data.id_token);
+                    $login.hide();
+                    $notLoggedIn.hide();
+                    showTokenInformation()
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    if (jqXHR.status === 401) {
+                        $('#loginErrorModal')
+                            .modal("show")
+                            .find(".modal-body")
+                            .empty()
+                            .html("<p>" + jqXHR.responseJSON.message + "</p>");
+                    } else {
+                        throw new Error("an unexpected error occured: " + errorThrown);
+                    }
+                }
+            });
+        }
+
+        function doLogout() {
+            removeJwtToken();
+            $login.show();
+            $loggedIn
+                .hide()
+                .attr("title", "")
+                .empty();
+            $notLoggedIn.show();
+        }
+
+        function showTokenInformation() {
+            $loggedIn
+                .text("Token: " + getJwtToken())
+                .attr("title", "Token: " + getJwtToken())
+                .show();
+        }
+
+        // REGISTER EVENT LISTENERS =============================================================
+        $("#loginForm").submit(function (event) {
+            event.preventDefault();
+
+            var $form = $(this);
+            var formData = {
+                username: $form.find('input[name="username"]').val(),
+                password: $form.find('input[name="password"]').val()
+            };
+
+            doLogin(formData);
+        });
+
+        $("#logoutButton").click(doLogout);
+
+        $loggedIn.click(function () {
+            $loggedIn
+                .toggleClass("text-hidden")
+                .toggleClass("text-shown");
+        });
+
+        // INITIAL CALLS =============================================================
+        if (getJwtToken()) {
+            $login.hide();
+            $notLoggedIn.hide();
+        }
+    });
+
+</script>
 </body>
 </html>

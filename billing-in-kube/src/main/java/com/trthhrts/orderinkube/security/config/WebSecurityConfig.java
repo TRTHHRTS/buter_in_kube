@@ -29,11 +29,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
    @Override
    protected void configure(HttpSecurity httpSecurity) throws Exception {
       httpSecurity
-         .csrf().disable()
-         .sessionManagement()
-         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-         .and()
-         .authorizeRequests()
-         .antMatchers("/api").permitAll();
+              .cors().and().csrf().disable()
+              .sessionManagement()
+              .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+              .and()
+              .authorizeRequests()
+              .antMatchers("/api").permitAll();
    }
 }

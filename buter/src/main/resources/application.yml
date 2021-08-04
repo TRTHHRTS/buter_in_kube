@@ -1,6 +1,19 @@
 server:
   servlet:
     context-path: /
+  port: 8085
 
-logging:
-  level: DEBUG
+spring:
+  application:
+    name: BUTER IN KUBE
+  thymeleaf:
+    cache: false
+    enabled: true
+    prefix: classpath:/templates/
+    suffix: .html
+
+services:
+  auth-service:
+    url: ${AUTH_SERVICE_URL}
+  order-service:
+    url: ${ORDER_SERVICE_URL}

@@ -1,5 +1,6 @@
 package com.trthhrts.orderinkube.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,4 +23,9 @@ public class Position {
 
     @Column
     private int quantity;
+
+    public Position(Long buterId, int quantity) {
+        this.buterId = buterId;
+        this.quantity = quantity;
+    }
 }
