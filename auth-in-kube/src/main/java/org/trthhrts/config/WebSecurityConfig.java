@@ -11,7 +11,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.filter.CorsFilter;
 import org.trthhrts.security.JwtAccessDeniedHandler;
 import org.trthhrts.security.JwtAuthenticationEntryPoint;
 import org.trthhrts.security.jwt.JWTConfigurer;
@@ -22,15 +21,15 @@ import org.trthhrts.security.jwt.TokenProvider;
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
    private final TokenProvider tokenProvider;
-   private final CorsFilter corsFilter;
+   private final CorsConfig corsConfig;
    private final JwtAuthenticationEntryPoint authenticationErrorHandler;
    private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
 
-   public WebSecurityConfig(TokenProvider tokenProvider, CorsFilter corsFilter,
+   public WebSecurityConfig(TokenProvider tokenProvider, CorsConfig corsFilter,
                             JwtAuthenticationEntryPoint authenticationErrorHandler,
                             JwtAccessDeniedHandler jwtAccessDeniedHandler) {
       this.tokenProvider = tokenProvider;
-      this.corsFilter = corsFilter;
+      this.corsConfig = corsFilter;
       this.authenticationErrorHandler = authenticationErrorHandler;
       this.jwtAccessDeniedHandler = jwtAccessDeniedHandler;
    }
@@ -58,7 +57,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
    protected void configure(HttpSecurity httpSecurity) throws Exception {
       httpSecurity
          .csrf().disable()
-         .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
+         .addFilterBefore(corsConfig.corsFilter(), UsernamePasswordAuthenticationFilter.class)
          .exceptionHandling()
          .authenticationEntryPoint(authenticationErrorHandler)
          .accessDeniedHandler(jwtAccessDeniedHandler)
