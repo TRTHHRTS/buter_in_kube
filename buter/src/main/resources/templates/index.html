@@ -8,6 +8,8 @@
 </head>
 <body>
 <div class="container">
+    <div style="display: none" id="authServiceUrl" th:text="${authServiceUrl}"></div>
+
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">BUTER IN KUBE</a>
@@ -22,83 +24,44 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/orders">ЗАКАЗЫ</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="/login">ВХОД</a>
+                    </li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <div class="tab-pane active" id="home" role="tabpanel" aria-labelledby="home-tab">
-
-        <div class="alert alert-danger" id="notLoggedIn">Not logged in!</div>
-        <div class="alert alert-info text-hidden" id="loggedIn"></div>
-
-        <div class="row">
-            <div class="col-md-6">
-                <div class="panel panel-default" id="login">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">Войти</h3>
-                    </div>
-                    <div class="panel-body">
-                        <form id="loginForm">
-                            <div class="form-group m-1">
-                                <input type="text" class="form-control" id="exampleInputEmail1" placeholder="username"
-                                       required name="username">
-                            </div>
-                            <div class="form-group m-1">
-                                <input type="password" class="form-control" id="exampleInputPassword1"
-                                       placeholder="password" required name="password">
-                            </div>
-                            <div class="well">
-                                Тестовые варианты
-                                <ul>
-                                    <li>admin & admin</li>
-                                    <li>user & password</li>
-                                    <li>disabled & password</li>
-                                </ul>
-                            </div>
-                            <button type="submit" class="btn btn-primary">login</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="text-center">
-            <h1>меню</h1>
-        </div>
-        <table class="table table-hover">
-            <thead>
-            <tr>
-                <th>ID</th>
-                <th>Название</th>
-                <th>Описание</th>
-                <th>Количество</th>
-                <th>Цена</th>
-                <th>Добавить в заказ</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="buter: ${buters}" th:id="${buter.id}">
-                <td th:text="${buter.id}"></td>
-                <td th:id='${buter.id + "_name"}' th:text="${buter.name}"></td>
-                <td th:text="${buter.desc}"></td>
-                <td th:text="${buter.quantity}"></td>
-                <td th:text="${buter.price}"></td>
-                <td><button type="button" class="btn btn-success" th:value="${buter.id}" th:onclick="addToOrder(this.value)">Добавить</button></td>
-            </tr>
-            </tbody>
-        </table>
-        <div class="text-center">
-            <h2>Ваш заказ</h2>
-            <ul id="orderList" class="list-group text-center"></ul>
-            <button type="button" class="btn btn-primary" th:onclick="createOrder()">Заказать</button>
-        </div>
+    <div class="text-center">
+        <h1>меню</h1>
     </div>
-
-    <div>
-        <h5>ТЕХ_ИНФО</h5>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Название</th>
+            <th>Описание</th>
+            <th>Количество</th>
+            <th>Цена</th>
+            <th>Добавить в заказ</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="buter: ${buters}" th:id="${buter.id}">
+            <td th:text="${buter.id}"></td>
+            <td th:id='${buter.id + "_name"}' th:text="${buter.name}"></td>
+            <td th:text="${buter.desc}"></td>
+            <td th:text="${buter.quantity}"></td>
+            <td th:text="${buter.price}"></td>
+            <td><button type="button" class="btn btn-success" th:value="${buter.id}" th:onclick="addToOrder(this.value)">Добавить</button></td>
+        </tr>
+        </tbody>
+    </table>
+    <div class="text-center">
+        <h2>Ваш заказ</h2>
+        <ul id="orderList" class="list-group text-center"></ul>
+        <button type="button" class="btn btn-primary" th:onclick="createOrder()">Заказать</button>
     </div>
-    <div id="authServiceUrl" th:text="${authServiceUrl}"></div>
 </div>
 
 <script th:src="@{/webjars/jquery/3.6.0/jquery.min.js}"></script>
@@ -110,13 +73,8 @@
     let order = {};
 
     $(function() {
-        // VARIABLES =============================================================
         var TOKEN_KEY = "jwtToken";
-        var $notLoggedIn = $("#notLoggedIn");
-        var $loggedIn = $("#loggedIn").hide();
-        var $login = $("#login");
 
-        // FUNCTIONS =============================================================
         addToOrder = function(id) {
             order[id] = order[id] ? order[id] + 1 : 1;
             const liText = $(`td#${id}_name`)[0].innerHTML + ` (${order[id]} шт.)`;
@@ -150,61 +108,8 @@
             return $.cookie(TOKEN_KEY);
         }
 
-        function setJwtToken(token) {
-            $.cookie(TOKEN_KEY, token, { expires: 1 });
-        }
-
-        function removeJwtToken() {
-            $.removeCookie(TOKEN_KEY);
-        }
-
-        function doLogin(loginData) {
-            const authUrl = $("#authServiceUrl")[0].innerHTML;
-            $.ajax({
-                url: authUrl + "/api/authenticate",
-                type: "POST",
-                data: JSON.stringify(loginData),
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function (data, textStatus, jqXHR) {
-                    setJwtToken(data.id_token);
-                    $login.hide();
-                    $notLoggedIn.hide();
-                    showTokenInformation()
-                },
-                error: function (jqXHR, textStatus, errorThrown) {
-                    if (jqXHR.status === 401) {
-                        $('#loginErrorModal')
-                            .modal("show")
-                            .find(".modal-body")
-                            .empty()
-                            .html("<p>" + jqXHR.responseJSON.message + "</p>");
-                    } else {
-                        throw new Error("an unexpected error occured: " + errorThrown);
-                    }
-                }
-            });
-        }
-
-        function doLogout() {
-            removeJwtToken();
-            $login.show();
-            $loggedIn
-                .hide()
-                .attr("title", "")
-                .empty();
-            $notLoggedIn.show();
-        }
-
-        function showTokenInformation() {
-            $loggedIn
-                .text("Token: " + getJwtToken())
-                .attr("title", "Token: " + getJwtToken())
-                .show();
-        }
-
         function createAuthorizationTokenHeader() {
-            var token = getJwtToken();
+            const token = getJwtToken();
             if (token) {
                 return {"Authorization": "Bearer " + token};
             } else {
@@ -212,31 +117,8 @@
             }
         }
 
-        // REGISTER EVENT LISTENERS =============================================================
-        $("#loginForm").submit(function (event) {
-            event.preventDefault();
-
-            var $form = $(this);
-            var formData = {
-                username: $form.find('input[name="username"]').val(),
-                password: $form.find('input[name="password"]').val()
-            };
-
-            doLogin(formData);
-        });
-
-        $("#logoutButton").click(doLogout);
-
-        $loggedIn.click(function () {
-            $loggedIn
-                .toggleClass("text-hidden")
-                .toggleClass("text-shown");
-        });
-
-        // INITIAL CALLS =============================================================
-        if (getJwtToken()) {
-            $login.hide();
-            $notLoggedIn.hide();
+        if (!getJwtToken()) {
+            document.location.href = "/login";
         }
     });
 </script>

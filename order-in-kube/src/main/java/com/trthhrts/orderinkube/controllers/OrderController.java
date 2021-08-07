@@ -7,7 +7,7 @@ import com.trthhrts.orderinkube.model.Order;
 import com.trthhrts.orderinkube.model.Position;
 import com.trthhrts.orderinkube.repository.ButerRepository;
 import com.trthhrts.orderinkube.repository.OrderRepository;
-import com.trthhrts.orderinkube.service.AuthService;
+import com.trthhrts.orderinkube.service.remote.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,10 +24,9 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class OrderController {
 
+   /** Сервис по работе с пользователями */
    private final AuthService authService;
    private final ButerRepository buterRepository;
-
-   /** Сервис по работе с пользователями */
    private final OrderRepository orderRepository;
 
    @GetMapping
@@ -68,6 +67,7 @@ public class OrderController {
       order.setStatus(OrderStatus.NEW.name());
       order.setCost(cost);
       orderRepository.save(order);
+
       return ResponseEntity.ok(order.getId());
    }
 

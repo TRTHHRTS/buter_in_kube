@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BUTER IN KUBE</title>
+
+    <link th:rel="stylesheet" th:href="@{webjars/bootstrap/5.0.2/css/bootstrap.min.css} "/>
+</head>
+<body>
+<div class="container">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">BUTER IN KUBE</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="/">ГЛАВНАЯ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/orders">ЗАКАЗЫ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="/login">ВХОД</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="panel panel-default" id="login">
+                <div class="panel-body">
+                    <form id="loginForm">
+                        <div class="form-group m-1">
+                            <input type="text" class="form-control" id="exampleInputEmail1" placeholder="username"
+                                   required name="username">
+                        </div>
+                        <div class="form-group m-1">
+                            <input type="password" class="form-control" id="exampleInputPassword1"
+                                   placeholder="password" required name="password">
+                        </div>
+                        <div class="well">
+                            Тестовые варианты
+                            <ul>
+                                <li>admin & admin</li>
+                                <li>user & password</li>
+                                <li>disabled & password</li>
+                            </ul>
+                        </div>
+                        <button type="submit" class="btn btn-primary">login</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script th:src="@{/webjars/jquery/3.6.0/jquery.min.js}"></script>
+<script th:src="@{/webjars/jquery-cookie/1.4.1-1/jquery.cookie.js}"></script>
+<script th:src="@{/webjars/popper.js/2.9.2/umd/popper.min.js}"></script>
+<script th:src="@{/webjars/bootstrap/5.0.2/js/bootstrap.min.js}"></script>
+
+<script>
+    let order = {};
+
+    $(function() {
+        // VARIABLES =============================================================
+        var TOKEN_KEY = "jwtToken";
+        var $notLoggedIn = $("#notLoggedIn");
+        var $loggedIn = $("#loggedIn").hide();
+        var $login = $("#login");
+
+        // FUNCTIONS =============================================================
+        function getJwtToken() {
+            return $.cookie(TOKEN_KEY);
+        }
+
+        function setJwtToken(token) {
+            $.cookie(TOKEN_KEY, token, { expires: 1 });
+        }
+
+        function removeJwtToken() {
+            $.removeCookie(TOKEN_KEY);
+        }
+
+        function doLogin(loginData) {
+            const authUrl = $("#authServiceUrl")[0].innerHTML;
+            $.ajax({
+                url: authUrl + "/api/authenticate",
+                type: "POST",
+                data: JSON.stringify(loginData),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, textStatus, jqXHR) {
+                    setJwtToken(data.id_token);
+                    $login.hide();
+                    $notLoggedIn.hide();
+                    showTokenInformation()
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    if (jqXHR.status === 401) {
+                        $('#loginErrorModal')
+                            .modal("show")
+                            .find(".modal-body")
+                            .empty()
+                            .html("<p>" + jqXHR.responseJSON.message + "</p>");
+                    } else {
+                        throw new Error("an unexpected error occured: " + errorThrown);
+                    }
+                }
+            });
+        }
+
+        function doLogout() {
+            removeJwtToken();
+            $login.show();
+            $loggedIn
+                .hide()
+                .attr("title", "")
+                .empty();
+            $notLoggedIn.show();
+        }
+
+        function showTokenInformation() {
+            $loggedIn
+                .text("Token: " + getJwtToken())
+                .attr("title", "Token: " + getJwtToken())
+                .show();
+        }
+
+        // REGISTER EVENT LISTENERS =============================================================
+        $("#loginForm").submit(function (event) {
+            event.preventDefault();
+
+            var $form = $(this);
+            var formData = {
+                username: $form.find('input[name="username"]').val(),
+                password: $form.find('input[name="password"]').val()
+            };
+
+            doLogin(formData);
+        });
+
+        $("#logoutButton").click(doLogout);
+
+        $loggedIn.click(function () {
+            $loggedIn
+                .toggleClass("text-hidden")
+                .toggleClass("text-shown");
+        });
+
+        // INITIAL CALLS =============================================================
+        if (getJwtToken()) {
+            $login.hide();
+            $notLoggedIn.hide();
+        }
+    });
+</script>
+</body>
+</html>

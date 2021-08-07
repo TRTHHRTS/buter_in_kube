@@ -2,7 +2,6 @@ package com.trthhrts.orderinkube.controllers;
 
 import com.trthhrts.orderinkube.model.Buter;
 import com.trthhrts.orderinkube.repository.ButerRepository;
-import com.trthhrts.orderinkube.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

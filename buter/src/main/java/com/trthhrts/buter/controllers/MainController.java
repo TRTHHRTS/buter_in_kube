@@ -32,6 +32,12 @@ public class MainController {
         return "index";
     }
 
+    @GetMapping("/login")
+    public String login(Model model) {
+        model.addAttribute("authServiceUrl", authUri);
+        return "login";
+    }
+
     @GetMapping("/orders")
     public String orders(Model model) {
         model.addAttribute("orders", orderService.getOrders());

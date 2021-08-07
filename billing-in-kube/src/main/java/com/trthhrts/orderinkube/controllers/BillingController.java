@@ -21,12 +21,13 @@ public class BillingController {
    private final BillingService billingService;
    private final OrderService orderService;
 
-   @PostMapping("/payOrder/{orderId}")
-   public void payOrder(@PathVariable Long orderId) {
+   @PostMapping("/payOrder/{orderId}/{price}")
+   public void payOrder(@PathVariable Long orderId, @PathVariable Long price) {
       Long userId = authService.getUserId();
       log.info("Оплата заказа (ID={}, userId={})", orderId, userId);
-      OrderInfo orderInfo = orderService.getOrderInfo(orderId, userId);
-      // TODO
+      billingService.withdraw(userId, price);
+      // TODO зарезервировать бутеры
+      // TODO перевести статус заказа
    }
 
    @PutMapping("/deposit/{amount}")
@@ -39,8 +40,7 @@ public class BillingController {
    @PutMapping("/withdraw/{amount}")
    public void withdraw(@PathVariable Long amount) {
       Long userId = authService.getUserId();
-      log.info("Снятие средств со счета пользователя (ID={}, amount={})", userId, amount);
-      billingService.withdraw(amount);
+      billingService.withdraw(userId, amount);
    }
 
    @GetMapping("/balance")
