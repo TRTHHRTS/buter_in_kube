@@ -1,5 +1,6 @@
 package com.trthhrts.buter.controllers;
 
+import com.trthhrts.buter.dto.OrderInfo;
 import com.trthhrts.buter.dto.PositionsInfo;
 import com.trthhrts.buter.service.remote.OrderService;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -40,7 +42,15 @@ public class MainController {
 
     @GetMapping("/orders")
     public String orders(Model model) {
-        model.addAttribute("orders", orderService.getOrders());
+        List<OrderInfo> orders;
+        try {
+            orders = orderService.getOrders();
+        } catch (Exception e) {
+            orders = Collections.emptyList();
+            model.addAttribute("ERROR", "ОШИБКА ЗАГРУЗКИ СПИСКА ЗАКАЗОВ: " + e.getMessage());
+        }
+        model.addAttribute("orders", orders);
+        model.addAttribute("authServiceUrl", authUri);
         return "orders";
     }
 

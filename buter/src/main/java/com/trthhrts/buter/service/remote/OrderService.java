@@ -5,6 +5,7 @@ import com.trthhrts.buter.dto.OrderInfo;
 import com.trthhrts.buter.dto.PositionsInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -47,6 +48,7 @@ public class OrderService {
                 .uri( orderServiceUri + "/api/order")
                 .header("Authorization", token)
                 .retrieve()
+                .onStatus(HttpStatus::isError, response -> Mono.error(new RuntimeException("Некорректный токен")))
                 .bodyToMono(ArrayList.class)
                 .block();
     }

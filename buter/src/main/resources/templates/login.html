@@ -8,6 +8,8 @@
 </head>
 <body>
 <div class="container">
+    <div style="display: none" id="authServiceUrl" th:text="${authServiceUrl}"></div>
+
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">BUTER IN KUBE</a>
@@ -43,7 +45,7 @@
                             <input type="password" class="form-control" id="exampleInputPassword1"
                                    placeholder="password" required name="password">
                         </div>
-                        <div class="well">
+                        <div class="mt-1 well">
                             Тестовые варианты
                             <ul>
                                 <li>admin & admin</li>
@@ -66,28 +68,10 @@
 <script th:src="@{/webjars/bootstrap/5.0.2/js/bootstrap.min.js}"></script>
 
 <script>
-    let order = {};
-
     $(function() {
-        // VARIABLES =============================================================
         var TOKEN_KEY = "jwtToken";
-        var $notLoggedIn = $("#notLoggedIn");
-        var $loggedIn = $("#loggedIn").hide();
-        var $login = $("#login");
 
         // FUNCTIONS =============================================================
-        function getJwtToken() {
-            return $.cookie(TOKEN_KEY);
-        }
-
-        function setJwtToken(token) {
-            $.cookie(TOKEN_KEY, token, { expires: 1 });
-        }
-
-        function removeJwtToken() {
-            $.removeCookie(TOKEN_KEY);
-        }
-
         function doLogin(loginData) {
             const authUrl = $("#authServiceUrl")[0].innerHTML;
             $.ajax({
@@ -97,10 +81,8 @@
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function (data, textStatus, jqXHR) {
-                    setJwtToken(data.id_token);
-                    $login.hide();
-                    $notLoggedIn.hide();
-                    showTokenInformation()
+                    $.cookie(TOKEN_KEY, data.id_token, { expires: 1 });
+                    document.location.href = '/';
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     if (jqXHR.status === 401) {
@@ -116,48 +98,20 @@
             });
         }
 
-        function doLogout() {
-            removeJwtToken();
-            $login.show();
-            $loggedIn
-                .hide()
-                .attr("title", "")
-                .empty();
-            $notLoggedIn.show();
-        }
-
-        function showTokenInformation() {
-            $loggedIn
-                .text("Token: " + getJwtToken())
-                .attr("title", "Token: " + getJwtToken())
-                .show();
-        }
-
         // REGISTER EVENT LISTENERS =============================================================
         $("#loginForm").submit(function (event) {
             event.preventDefault();
-
             var $form = $(this);
             var formData = {
                 username: $form.find('input[name="username"]').val(),
                 password: $form.find('input[name="password"]').val()
             };
-
             doLogin(formData);
         });
 
-        $("#logoutButton").click(doLogout);
-
-        $loggedIn.click(function () {
-            $loggedIn
-                .toggleClass("text-hidden")
-                .toggleClass("text-shown");
-        });
-
         // INITIAL CALLS =============================================================
-        if (getJwtToken()) {
-            $login.hide();
-            $notLoggedIn.hide();
+        if ($.cookie(TOKEN_KEY)) {
+            document.location.href = "/";
         }
     });
 </script>
