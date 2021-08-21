@@ -4,7 +4,7 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
     <changeSet id="AINK_01" author="TRTHHRTS">
         <createTable tableName="users">
-            <column name="id" type="bigint">
+            <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="user_id_pk" />
             </column>
             <column name="username" type="varchar(50)">
@@ -19,9 +19,6 @@
             <column name="balance" type="bigint" defaultValueNumeric="0">
                 <constraints nullable="false"/>
             </column>
-            <column name="activated" type="boolean" defaultValueBoolean="false">
-                <constraints nullable="false"/>
-            </column>
         </createTable>
         <createTable tableName="authority">
             <column name="NAME" type="varchar(50)">
@@ -32,7 +29,7 @@
             <column name="user_id" type="bigint"/>
             <column name="authority_name" type="varchar(50)"/>
         </createTable>
-        <createSequence sequenceName="user_seq" incrementBy="1" startValue="1" />
+        <createSequence sequenceName="hibernate_sequence" startValue="500" incrementBy="1"/>
 
         <addForeignKeyConstraint baseTableName="user_authority" baseColumnNames="user_id"
                                  constraintName="user_authority_user_id"
@@ -48,21 +45,14 @@
             <column name="username" value="admin"/>
             <column name="password" value="$2a$08$lDnHPz7eUkSi6ao14Twuau08mzhWrL4kyZGGU5xfiGALO/Vxd5DOi"/>
             <column name="email" value="admin@admin.com"/>
-            <column name="activated" value="true"/>
+            <column name="balance" value="3000"/>
         </insert>
         <insert tableName="users">
             <column name="id" value="2"/>
             <column name="username" value="user"/>
             <column name="password" value="$2a$08$UkVvwpULis18S19S5pZFn.YHPZt3oaqHZnDwqbCW9pft6uFtkXKDC"/>
             <column name="email" value="enabled@user.com"/>
-            <column name="activated" value="true"/>
-        </insert>
-        <insert tableName="users">
-            <column name="id" value="3"/>
-            <column name="username" value="disabled"/>
-            <column name="password" value="$2a$08$UkVvwpULis18S19S5pZFn.YHPZt3oaqHZnDwqbCW9pft6uFtkXKDC"/>
-            <column name="email" value="disabled@user.com"/>
-            <column name="activated" value="false"/>
+            <column name="balance" value="5000"/>
         </insert>
 
         <insert tableName="authority">
@@ -82,10 +72,6 @@
         </insert>
         <insert tableName="user_authority">
             <column name="user_id" value="2"/>
-            <column name="authority_name" value="ROLE_USER"/>
-        </insert>
-        <insert tableName="user_authority">
-            <column name="user_id" value="3"/>
             <column name="authority_name" value="ROLE_USER"/>
         </insert>
     </changeSet>

@@ -3,6 +3,7 @@ package org.trthhrts.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -13,12 +14,13 @@ import java.util.Set;
 @Table(name = "users")
 @Getter
 @Setter
+@ToString
 public class User {
 
-   @JsonIgnore
    @Id
-   @Column
-   @GeneratedValue(strategy = GenerationType.IDENTITY)
+   @Column(nullable = false)
+   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hibernateSequence")
+   @SequenceGenerator(name = "hibernateSequence")
    private Long id;
 
    @Column(length = 50, unique = true)
@@ -33,10 +35,6 @@ public class User {
 
    @Column
    private Long balance;
-
-   @JsonIgnore
-   @Column
-   private boolean activated;
 
    @ManyToMany
    @JoinTable(
@@ -56,15 +54,5 @@ public class User {
    @Override
    public int hashCode() {
       return Objects.hash(id);
-   }
-
-   @Override
-   public String toString() {
-      return "User{" +
-         "username='" + username + '\'' +
-         ", password='" + password + '\'' +
-         ", email='" + email + '\'' +
-         ", activated=" + activated +
-         '}';
    }
 }
