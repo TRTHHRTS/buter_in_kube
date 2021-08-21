@@ -43,7 +43,6 @@
         <tr>
             <th>ID</th>
             <th>Название</th>
-            <th>Описание</th>
             <th>Количество</th>
             <th>Цена</th>
             <th>Добавить в заказ</th>
@@ -53,7 +52,6 @@
         <tr th:each="buter: ${buters}" th:id="${buter.id}">
             <td th:text="${buter.id}"></td>
             <td th:id='${buter.id + "_name"}' th:text="${buter.name}"></td>
-            <td th:text="${buter.desc}"></td>
             <td th:text="${buter.quantity}"></td>
             <td th:text="${buter.price}"></td>
             <td><button type="button" class="btn btn-success" th:value="${buter.id}" th:onclick="addToOrder(this.value)">Добавить</button></td>
@@ -99,9 +97,11 @@
                     order = {};
                     $("#orderList li").remove();
                     alert("Заказ создан, спасибо! Мы уже начали его обрабатывать.");
+                    document.location.reload();
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     alert("Что-то пошло не так: " + jqXHR.status);
+                    document.location.reload();
                 },
                 dataType: "text"
             });

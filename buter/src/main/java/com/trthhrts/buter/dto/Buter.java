@@ -11,8 +11,6 @@ public class Buter {
 
     private String name;
 
-    private String desc;
-
     private int quantity;
 
     private long price;

@@ -17,3 +17,5 @@ services:
     url: ${AUTH_SERVICE_URL}
   order-service:
     url: ${ORDER_SERVICE_URL}
+  billing-service:
+    url: ${BILLING_SERVICE_URL}

@@ -13,10 +13,30 @@ public class OrderService {
     @Value("${services.order-service.url}")
     private String orderServiceUri;
 
-    public OrderInfo getOrderInfo(Long orderId, Long userId) {
+    public OrderInfo getOrderInfo(Long orderId) {
         String token = getBearerTokenHeader();
         return WebClient.create(orderServiceUri).get()
-                .uri( "/api/order/id")
+                .uri( "/api/order/" + orderId)
+                .header("Authorization", token)
+                .retrieve()
+                .bodyToMono(OrderInfo.class)
+                .block();
+    }
+
+    public OrderInfo reserveButers(Long orderId) {
+        String token = getBearerTokenHeader();
+        return WebClient.create(orderServiceUri).put()
+                .uri( "/api/order/" + orderId + "/reserve")
+                .header("Authorization", token)
+                .retrieve()
+                .bodyToMono(OrderInfo.class)
+                .block();
+    }
+
+    public OrderInfo paidOrder(Long orderId) {
+        String token = getBearerTokenHeader();
+        return WebClient.create(orderServiceUri).put()
+                .uri( "/api/order/" + orderId + "/paid")
                 .header("Authorization", token)
                 .retrieve()
                 .bodyToMono(OrderInfo.class)

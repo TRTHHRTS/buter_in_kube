@@ -9,6 +9,8 @@ import com.trthhrts.orderinkube.repository.ButerRepository;
 import com.trthhrts.orderinkube.repository.OrderRepository;
 import com.trthhrts.orderinkube.service.remote.AuthService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONArray;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -22,6 +24,7 @@ import java.util.Objects;
 @RestController
 @RequestMapping("/api/order")
 @RequiredArgsConstructor
+@Slf4j
 public class OrderController {
 
    /** Сервис по работе с пользователями */
@@ -31,12 +34,61 @@ public class OrderController {
 
    @GetMapping
    public ResponseEntity<List<Order>> getOrders() {
+      log.info("Запрос получения информации о заказах");
       Long userId = authService.getUserId();
       return ResponseEntity.ok(orderRepository.findAllByUserId(userId));
    }
 
+   @GetMapping("/{id}")
+   public ResponseEntity<Order> getOrder(@PathVariable Long id) {
+      log.info("Запрос получения информации о заказе (id={})", id);
+      checkAuth();
+      Order order = orderRepository.findById(id).orElseThrow(() -> new RuntimeException("Заказ с id=" + id + " не найден."));
+      return ResponseEntity.ok(order);
+   }
+
+   @PutMapping("/{id}/reserve")
+   public ResponseEntity<Order> reserveButers(@PathVariable Long id) {
+      log.info("Запрос бронирования бутеров (id заказа={})", id);
+      checkAuth();
+      Order order = orderRepository.findById(id).orElseThrow(() -> new RuntimeException("Заказ с id=" + id + " не найден."));
+      for (Position position : order.getPositions()) {
+         Buter buter = buterRepository.findById(position.getButerId()).orElseThrow(() -> new RuntimeException("Бутер с id=" + id + " не найден."));
+         if (buter.getQuantity() < position.getQuantity()) {
+            throw new RuntimeException("Бутеров с id=" + position.getButerId() + " недостаточно!");
+         }
+         buter.setQuantity(buter.getQuantity() - position.getQuantity());
+         buterRepository.save(buter);
+      }
+      order.setStatus(OrderStatus.RESERVED.name());
+      orderRepository.save(order);
+      log.info("Бутеры забронированы (id заказа={})", id);
+      return ResponseEntity.ok(order);
+   }
+
+   @PutMapping("/{id}/paid")
+   public ResponseEntity<Order> paidOrder(@PathVariable Long id) {
+      log.info("Запрос подтверждения оплаты заказа (id заказа={})", id);
+      checkAuth();
+      Order order = orderRepository.findById(id).orElseThrow(() -> new RuntimeException("Заказ с id=" + id + " не найден."));
+      order.setStatus(OrderStatus.PAID.name());
+      orderRepository.save(order);
+      return ResponseEntity.ok(order);
+   }
+
+   @PutMapping("/{id}/done")
+   public ResponseEntity<Order> doneOrder(@PathVariable Long id) {
+      log.info("Запрос завершения заказа (id заказа={})", id);
+      checkAuth();
+      Order order = orderRepository.findById(id).orElseThrow(() -> new RuntimeException("Заказ с id=" + id + " не найден."));
+      order.setStatus(OrderStatus.DONE.name());
+      orderRepository.save(order);
+      return ResponseEntity.ok(order);
+   }
+
    @GetMapping("/{id}/positions")
    public ResponseEntity<List<Position>> getOrderPositions(@PathVariable Long id) {
+      log.info("Запрос получения информации о позициях в заказе (id заказа={})", id);
       Long userId = authService.getUserId();
       Order order = orderRepository.findById(id).orElseThrow(() -> new RuntimeException("Заказ с id=" + id + " не найден."));
       if (!Objects.equals(order.getUserId(), userId)) {
@@ -47,6 +99,7 @@ public class OrderController {
 
    @PostMapping
    public ResponseEntity<Long> newOrder(@RequestBody List<PositionsInfo> posInfos) {
+      log.info("Запрос создания нового заказа ({})", JSONArray.toJSONString(posInfos));
       Long userId = authService.getUserId();
       Order order = new Order();
       order.setUserId(userId);
@@ -74,5 +127,9 @@ public class OrderController {
    @ExceptionHandler(value = BadCredentialsException.class)
    public ResponseEntity handleBlogAlreadyExistsException(BadCredentialsException badCredentialsException) {
       return new ResponseEntity(badCredentialsException.getMessage(), HttpStatus.UNAUTHORIZED);
+   }
+
+   private void checkAuth() {
+      authService.getUserId();
    }
 }

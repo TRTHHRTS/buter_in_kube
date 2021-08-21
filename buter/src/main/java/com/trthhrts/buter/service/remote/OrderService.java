@@ -34,33 +34,42 @@ public class OrderService {
                 .block();
     }
 
-    public List<Buter> getButers() {
+    public Buter[] getButers() {
         return webClient.get()
                 .uri( orderServiceUri + "/api/buter")
                 .retrieve()
-                .bodyToMono(ArrayList.class)
+                .bodyToMono(Buter[].class)
                 .block();
     }
 
-    public List<OrderInfo> getOrders() {
+    public OrderInfo[] getOrders() {
         String token = getBearerTokenHeader();
         return webClient.get()
                 .uri( orderServiceUri + "/api/order")
                 .header("Authorization", token)
                 .retrieve()
                 .onStatus(HttpStatus::isError, response -> Mono.error(new RuntimeException("Некорректный токен")))
-                .bodyToMono(ArrayList.class)
+                .bodyToMono(OrderInfo[].class)
                 .block();
     }
 
-    public String createOrder(List<PositionsInfo> positionsInfos) {
+    public Long createOrder(List<PositionsInfo> positionsInfos) {
         String token = getBearerTokenHeader();
         return webClient.post()
                 .uri( orderServiceUri + "/api/order")
                 .header("Authorization", token)
                 .body(Mono.just(positionsInfos), ArrayList.class)
                 .retrieve()
-                .bodyToMono(String.class)
+                .bodyToMono(Long.class)
                 .block();
+    }
+
+    public void doneOrder(Long id) {
+        String token = getBearerTokenHeader();
+        webClient.put()
+                .uri( orderServiceUri + "/api/order/" + id + "/done")
+                .header("Authorization", token)
+                .retrieve()
+                .toBodilessEntity().block();
     }
 }

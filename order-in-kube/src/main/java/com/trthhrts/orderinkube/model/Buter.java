@@ -12,20 +12,17 @@ import javax.persistence.*;
 public class Buter {
 
     @Id
-    @Column
+    @Column()
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(length = 100, unique = true)
     private String name;
 
-    @Column
-    private String desc;
-
-    @Column
+    @Column()
     private int quantity;
 
-    @Column
+    @Column()
     private Long price;
 
 }

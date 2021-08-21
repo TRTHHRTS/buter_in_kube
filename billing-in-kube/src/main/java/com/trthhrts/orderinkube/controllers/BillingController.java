@@ -21,13 +21,15 @@ public class BillingController {
    private final BillingService billingService;
    private final OrderService orderService;
 
-   @PostMapping("/payOrder/{orderId}/{price}")
-   public void payOrder(@PathVariable Long orderId, @PathVariable Long price) {
+   @PostMapping("/payOrder/{orderId}")
+   public ResponseEntity<String> payOrder(@PathVariable Long orderId) {
       Long userId = authService.getUserId();
+      OrderInfo orderInfo = orderService.getOrderInfo(orderId);
       log.info("Оплата заказа (ID={}, userId={})", orderId, userId);
-      billingService.withdraw(userId, price);
-      // TODO зарезервировать бутеры
-      // TODO перевести статус заказа
+      orderService.reserveButers(orderId);
+      billingService.withdraw(userId, orderInfo.getCost());
+      orderService.paidOrder(orderId);
+      return ResponseEntity.ok("OK");
    }
 
    @PutMapping("/deposit/{amount}")

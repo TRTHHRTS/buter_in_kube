@@ -34,6 +34,6 @@ public class Order {
     @Column(nullable = false)
     private Long userId;
 
-    @OneToMany(mappedBy="order", cascade = CascadeType.MERGE)
+    @OneToMany(mappedBy="order", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Position> positions = new ArrayList<>();
 }
