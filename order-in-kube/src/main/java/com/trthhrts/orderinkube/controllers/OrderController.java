@@ -48,14 +48,14 @@ public class OrderController {
    }
 
    @PutMapping("/{id}/reserve")
-   public ResponseEntity<Order> reserveButers(@PathVariable Long id) {
+   public ResponseEntity<Object> reserveButers(@PathVariable Long id) {
       log.info("Запрос бронирования бутеров (id заказа={})", id);
       checkAuth();
       Order order = orderRepository.findById(id).orElseThrow(() -> new RuntimeException("Заказ с id=" + id + " не найден."));
       for (Position position : order.getPositions()) {
          Buter buter = buterRepository.findById(position.getButerId()).orElseThrow(() -> new RuntimeException("Бутер с id=" + id + " не найден."));
          if (buter.getQuantity() < position.getQuantity()) {
-            throw new RuntimeException("Бутеров с id=" + position.getButerId() + " недостаточно!");
+            return ResponseEntity.internalServerError().body("Бутеров \"" + buter.getName() + "\" недостаточно!");
          }
          buter.setQuantity(buter.getQuantity() - position.getQuantity());
          buterRepository.save(buter);
@@ -98,7 +98,7 @@ public class OrderController {
    }
 
    @PostMapping
-   public ResponseEntity<Long> newOrder(@RequestBody List<PositionsInfo> posInfos) {
+   public ResponseEntity<Object> newOrder(@RequestBody List<PositionsInfo> posInfos) {
       log.info("Запрос создания нового заказа ({})", JSONArray.toJSONString(posInfos));
       Long userId = authService.getUserId();
       Order order = new Order();
@@ -111,7 +111,7 @@ public class OrderController {
          Buter buter = buterRepository.findById(info.getButerId())
                  .orElseThrow(() -> new RuntimeException("Бутер с id=" + info.getButerId() + " не найден."));
          if (buter.getQuantity() < info.getQuantity()) {
-            throw new RuntimeException("Бутеров с id=" + info.getButerId() + " недостаточно.");
+            return ResponseEntity.internalServerError().body("Бутеров \"" + buter.getName() + "\" недостаточно!");
          }
          cost += buter.getPrice() * info.getQuantity();
          positions.add(new Position(order, buter.getId(), info.getQuantity()));

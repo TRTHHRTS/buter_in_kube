@@ -4,6 +4,7 @@ import com.trthhrts.buter.dto.Buter;
 import com.trthhrts.buter.dto.OrderInfo;
 import com.trthhrts.buter.dto.PositionsInfo;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import static com.trthhrts.buter.service.remote.RemoteServiceUtils.getBearerToke
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OrderService {
 
     private final WebClient webClient;

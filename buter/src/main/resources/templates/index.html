@@ -54,7 +54,10 @@
             <td th:id='${buter.id + "_name"}' th:text="${buter.name}"></td>
             <td th:text="${buter.quantity}"></td>
             <td th:text="${buter.price}"></td>
-            <td><button type="button" class="btn btn-success" th:value="${buter.id}" th:onclick="addToOrder(this.value)">Добавить</button></td>
+            <td>
+                <button th:if="${buter.quantity > 0}" type="button" class="btn btn-success" th:value="${buter.id}" th:onclick="addToOrder(this.value)">Добавить</button>
+                <span th:if="${buter.quantity <= 0}">Закончились</span>
+            </td>
         </tr>
         </tbody>
     </table>

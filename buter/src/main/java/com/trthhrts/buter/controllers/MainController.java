@@ -5,8 +5,8 @@ import com.trthhrts.buter.dto.OrderInfo;
 import com.trthhrts.buter.dto.PositionsInfo;
 import com.trthhrts.buter.service.remote.BillingService;
 import com.trthhrts.buter.service.remote.OrderService;
-import io.netty.util.internal.EmptyArrays;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -17,6 +17,7 @@ import java.util.*;
 
 @Controller
 @RequiredArgsConstructor
+@Slf4j
 public class MainController {
 
     @Value("${services.auth-service.url}")
@@ -62,8 +63,13 @@ public class MainController {
         for (Integer buterId : createOrderInfo.keySet()) {
             positions.add(new PositionsInfo(buterId, createOrderInfo.get(buterId)));
         }
-        Long orderId = orderService.createOrder(positions);
-        billingService.payOrder(orderId);
+        try {
+            Long orderId = orderService.createOrder(positions);
+            billingService.payOrder(orderId);
+        } catch (Exception e) {
+            log.error("Ошибка создания заказа", e);
+            return ResponseEntity.internalServerError().build();
+        }
         return ResponseEntity.ok("OK");
     }
 
