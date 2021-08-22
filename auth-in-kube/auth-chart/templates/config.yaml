@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: auth-config
+data:
+  DATASOURCE_URL: jdbc:postgresql://auth-postgres:5432/authinkube
+  DATASOURCE_USER: postgres
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: auth-secret
+data:
+  DATASOURCE_PASSWORD: cGFzc3dvcmQ=

@@ -1,18 +1,17 @@
 server:
   servlet:
     context-path: /
-  port: 8080
+  port: ${PORT:8080}
 
 spring:
   liquibase:
     change-log: classpath:db/changelog.xml
     enabled: true
-
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: ${DATASOURCE_URL}
-    username: ${DATASOURCE_USER}
-    password: ${DATASOURCE_PASSWORD}
+    url: ${DATASOURCE_URL:jdbc:postgresql://localhost:5432/aink}
+    username: ${DATASOURCE_USER:aink}
+    password: ${DATASOURCE_PASSWORD:123456}
 
   jackson:
     serialization:
@@ -33,4 +32,4 @@ jwt:
 
 logging:
   level:
-    org.trthhrts.security: DEBUG
+    org.trthhrts: DEBUG
