@@ -2,7 +2,7 @@
 <hr>
 
 #### Алертинг и мониторинг (что, как и зачем)
-TODO
+Использую Spring Boot Actuator, Micrometer, Prometheus, Grafana и стандартные дашборды
 
 #### Декомпозиция сервисов
 TODO
@@ -11,14 +11,15 @@ TODO
 TODO
 
 #### Протоколы межсервисного взаимодействия
-- HTTP
+- HTTP<br/>
+Каждый микросервис это отдельный докер-контейнер. Для удобства объединил все в один docker-compose
 
 #### Аутентификация/авторизация
 - Spring Security
 - JWT tokens
 
 #### API Gateway / Service Mesh
-TODO
+- не используется
 
 #### Нагрузочное тестирование
 TODO
@@ -43,9 +44,12 @@ TODO
 * декомпозиция микросервисов: пользовательские сценарии, общая схема взаимодействия сервисов, их назначение и зоны ответственности - **ДЗ по паттернам декомпозиции микросервисов**;
 * сделать метод создания заказа идемпотентным - **ДЗ по идемпотентности и коммутативности**;
 * [выполнить ДЗ по STREAM PROCESSING](HW_STREAM_PROCESSING.md);
-* [выполнить ДЗ по API GATEWAY](HW_API_GATEWAY.md);
 
-#### Сборка/деплой
+#### Развернуть / собрать
+- docker-compose build
+- docker-compose up
+
+#### Сборка/деплой (with helm)
 - docker build . -t trthhrts/authinkube:0.0.1
 - docker push trthhrts/authinkube:0.0.1
 - helm install postgres bitnami/postgresql -f ./auth-pg/values.yaml
