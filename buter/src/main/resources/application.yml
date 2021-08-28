@@ -1,7 +1,7 @@
 server:
   servlet:
     context-path: /
-  port: 8085
+  port: ${PORT:8080}
 
 spring:
   application:
@@ -12,6 +12,10 @@ spring:
     prefix: classpath:/templates/
     suffix: .html
 
+logging:
+  level:
+    root=DEBUG
+
 services:
   auth-service:
     url: ${AUTH_SERVICE_URL}
@@ -19,3 +23,16 @@ services:
     url: ${ORDER_SERVICE_URL}
   billing-service:
     url: ${BILLING_SERVICE_URL}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    distribution:
+      percentiles-histogram:
+        "[http.server.requests]": true

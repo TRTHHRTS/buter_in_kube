@@ -32,4 +32,4 @@ jwt:
 
 logging:
   level:
-    org.trthhrts: DEBUG
+    root=DEBUG

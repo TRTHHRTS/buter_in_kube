@@ -1,0 +1,14 @@
+#!/bin/bash
+set -e
+export PGPASSWORD=$POSTGRES_PASSWORD;
+psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
+  CREATE USER authink WITH PASSWORD '123456';
+  CREATE DATABASE authink;
+  GRANT ALL PRIVILEGES ON DATABASE authink TO authink;
+
+  CREATE USER orderink WITH PASSWORD '123456';
+  CREATE DATABASE orderink;
+  GRANT ALL PRIVILEGES ON DATABASE orderink TO orderink;
+
+  COMMIT;
+EOSQL

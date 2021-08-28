@@ -1,7 +1,11 @@
 server:
   servlet:
     context-path: /
-  port: 8083
+  port: ${PORT:8080}
+
+logging:
+  level:
+    root=DEBUG
 
 services:
   auth-service:

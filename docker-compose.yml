@@ -1,0 +1,101 @@
+version: '3.1'
+
+services:
+
+  buter_pg:
+    image: postgres:alpine
+    container_name: buter_pg
+    restart: always
+    ports:
+      - "5432:5432"
+    networks:
+      postgres:
+        ipv4_address: 172.10.0.2
+    environment:
+      POSTGRES_PASSWORD: 123456
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - ./bin/data_pg:/var/lib/postgresql/data postgres
+      - ./db_init:/docker-entrypoint-initdb.d/
+
+  buter_pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: buter_pgadmin
+    restart: always
+    ports:
+      - "89:80"
+    networks:
+      postgres:
+        ipv4_address: 172.10.0.3
+    environment:
+      PGADMIN_DEFAULT_PASSWORD: 123456
+      PGADMIN_DEFAULT_EMAIL: admin@trt.com
+    volumes:
+      - ./bin/data_pgadmin:/var/lib/pgadmin
+    depends_on:
+      - buter_pg
+
+  buter_auth:
+    image: trthhrts/authinkube:0.0.2
+    container_name: buter_auth
+    ports:
+      - "81:8080"
+    networks:
+      postgres:
+        ipv4_address: 172.10.0.4
+    environment:
+      DATASOURCE_URL: "jdbc:postgresql://buter_pg:5432/authink"
+      DATASOURCE_USER: "authink"
+      DATASOURCE_PASSWORD: 123456
+    depends_on:
+      - buter_pg
+
+  buter_billing:
+    image: trthhrts/billinginkube:0.0.1
+    container_name: buter_billing
+    ports:
+      - "82:8080"
+    networks:
+      postgres:
+        ipv4_address: 172.10.0.5
+    environment:
+      AUTH_SERVICE_URL: "http://buter_auth:81"
+      ORDER_SERVICE_URL: "http://buter_order:83"
+
+  buter_order:
+    image: trthhrts/orderinkube:0.0.1
+    container_name: buter_order
+    ports:
+      - "83:8080"
+    networks:
+      postgres:
+        ipv4_address: 172.10.0.6
+    environment:
+      DATASOURCE_URL: "jdbc:postgresql://buter_pg:5432/orderink"
+      DATASOURCE_USER: "orderink"
+      DATASOURCE_PASSWORD: 123456
+      AUTH_SERVICE_URL: "http://buter_auth:81"
+    depends_on:
+      - buter_pg
+
+  buter_web:
+    image: trthhrts/buter:0.0.1
+    container_name: buter_web
+    ports:
+      - "80:8080"
+    networks:
+      postgres:
+        ipv4_address: 172.10.0.7
+    environment:
+      AUTH_SERVICE_URL: "http://buter_auth:81"
+      BILLING_SERVICE_URL: "http://buter_billing:82"
+      ORDER_SERVICE_URL: "http://buter_order:83"
+    depends_on:
+      - buter_pg
+
+networks:
+  postgres:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.10.0.0/16
