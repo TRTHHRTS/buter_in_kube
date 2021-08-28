@@ -14,11 +14,12 @@ spring:
 
 logging:
   level:
-    root=DEBUG
+    root: INFO
 
 services:
   auth-service:
     url: ${AUTH_SERVICE_URL}
+    external_url: ${AUTH_SERVICE_EXT_URL}
   order-service:
     url: ${ORDER_SERVICE_URL}
   billing-service:

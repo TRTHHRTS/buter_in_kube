@@ -16,8 +16,21 @@ spring:
 
 logging:
   level:
-    root=DEBUG
+    root: INFO
 
 services:
   auth-service:
     url: ${AUTH_SERVICE_URL}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    distribution:
+      percentiles-histogram:
+        "[http.server.requests]": true

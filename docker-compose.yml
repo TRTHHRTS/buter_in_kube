@@ -1,16 +1,13 @@
-version: '3.1'
+version: '3.7'
 
 services:
 
-  buter_pg:
+  buterpg:
     image: postgres:alpine
-    container_name: buter_pg
+    container_name: buterpg
     restart: always
-    ports:
-      - "5432:5432"
     networks:
-      postgres:
-        ipv4_address: 172.10.0.2
+      - buter
     environment:
       POSTGRES_PASSWORD: 123456
       PGDATA: /var/lib/postgresql/data/pgdata
@@ -18,84 +15,107 @@ services:
       - ./bin/data_pg:/var/lib/postgresql/data postgres
       - ./db_init:/docker-entrypoint-initdb.d/
 
-  buter_pgadmin:
+  buterpgadmin:
     image: dpage/pgadmin4:latest
-    container_name: buter_pgadmin
+    container_name: buterpgadmin
     restart: always
     ports:
       - "89:80"
-    networks:
-      postgres:
-        ipv4_address: 172.10.0.3
     environment:
       PGADMIN_DEFAULT_PASSWORD: 123456
       PGADMIN_DEFAULT_EMAIL: admin@trt.com
     volumes:
       - ./bin/data_pgadmin:/var/lib/pgadmin
     depends_on:
-      - buter_pg
+      - buterpg
+    networks:
+      - buter
 
-  buter_auth:
-    image: trthhrts/authinkube:0.0.2
-    container_name: buter_auth
+  buterauth:
+    build: './auth-in-kube'
+    container_name: buterauth
     ports:
       - "81:8080"
-    networks:
-      postgres:
-        ipv4_address: 172.10.0.4
     environment:
-      DATASOURCE_URL: "jdbc:postgresql://buter_pg:5432/authink"
+      DATASOURCE_URL: "jdbc:postgresql://buterpg:5432/authink"
       DATASOURCE_USER: "authink"
       DATASOURCE_PASSWORD: 123456
     depends_on:
-      - buter_pg
+      - buterpg
+    networks:
+      - buter
+      - default
 
-  buter_billing:
-    image: trthhrts/billinginkube:0.0.1
-    container_name: buter_billing
+  buterbilling:
+    build: './billing-in-kube'
+    container_name: buterbilling
     ports:
       - "82:8080"
-    networks:
-      postgres:
-        ipv4_address: 172.10.0.5
     environment:
-      AUTH_SERVICE_URL: "http://buter_auth:81"
-      ORDER_SERVICE_URL: "http://buter_order:83"
+      AUTH_SERVICE_URL: "http://buterauth:8080"
+      ORDER_SERVICE_URL: "http://buterorder:8080"
+    networks:
+      - buter
+      - default
 
-  buter_order:
-    image: trthhrts/orderinkube:0.0.1
-    container_name: buter_order
+  buterorder:
+    build: './order-in-kube'
+    container_name: buterorder
     ports:
       - "83:8080"
-    networks:
-      postgres:
-        ipv4_address: 172.10.0.6
     environment:
-      DATASOURCE_URL: "jdbc:postgresql://buter_pg:5432/orderink"
+      DATASOURCE_URL: "jdbc:postgresql://buterpg:5432/orderink"
       DATASOURCE_USER: "orderink"
       DATASOURCE_PASSWORD: 123456
-      AUTH_SERVICE_URL: "http://buter_auth:81"
+      AUTH_SERVICE_URL: "http://buterauth:8080"
     depends_on:
-      - buter_pg
+      - buterpg
+    networks:
+      - buter
+      - default
 
-  buter_web:
-    image: trthhrts/buter:0.0.1
-    container_name: buter_web
+  buterweb:
+    build: './buter'
+    container_name: buterweb
     ports:
       - "80:8080"
-    networks:
-      postgres:
-        ipv4_address: 172.10.0.7
     environment:
-      AUTH_SERVICE_URL: "http://buter_auth:81"
-      BILLING_SERVICE_URL: "http://buter_billing:82"
-      ORDER_SERVICE_URL: "http://buter_order:83"
+      AUTH_SERVICE_URL: "http://buterauth:8080"
+      AUTH_SERVICE_EXT_URL: "http://localhost:81"
+      BILLING_SERVICE_URL: "http://buterbilling:8080"
+      ORDER_SERVICE_URL: "http://buterorder:8080"
     depends_on:
-      - buter_pg
+      - buterpg
+    networks:
+      - buter
+      - default
+
+  grafana:
+    build: './config/grafana'
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./bin/grafana:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    networks:
+      - buter
+      - default
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./bin/prometheus:/prometheus
+    networks:
+      - buter
+      - default
 
 networks:
-  postgres:
+  buter:
     driver: bridge
-    ipam:
-      config:
-        - subnet: 172.10.0.0/16

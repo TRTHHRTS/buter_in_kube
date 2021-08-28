@@ -20,7 +20,7 @@ import java.util.*;
 @Slf4j
 public class MainController {
 
-    @Value("${services.auth-service.url}")
+    @Value("${services.auth-service.external_url}")
     private String authUri;
 
     private final OrderService orderService;
