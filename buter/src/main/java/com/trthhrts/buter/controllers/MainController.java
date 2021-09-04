@@ -3,6 +3,7 @@ package com.trthhrts.buter.controllers;
 import com.trthhrts.buter.dto.Buter;
 import com.trthhrts.buter.dto.OrderInfo;
 import com.trthhrts.buter.dto.PositionsInfo;
+import com.trthhrts.buter.service.remote.AuthService;
 import com.trthhrts.buter.service.remote.BillingService;
 import com.trthhrts.buter.service.remote.OrderService;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,8 @@ public class MainController {
     @Value("${services.auth-service.external_url}")
     private String authUri;
 
+    private final AuthService authService;
+
     private final OrderService orderService;
 
     private final BillingService billingService;
@@ -32,6 +35,12 @@ public class MainController {
         Buter[] buters = orderService.getButers();
         model.addAttribute("buters", Arrays.stream(buters).sorted(Comparator.comparingLong(Buter::getId)).toArray());
         model.addAttribute("authServiceUrl", authUri);
+        try {
+            Long balance = authService.getUserBalance();
+            model.addAttribute("balance", balance);
+        } catch (Exception ignored) {
+            // ignored
+        }
         return "index";
     }
 

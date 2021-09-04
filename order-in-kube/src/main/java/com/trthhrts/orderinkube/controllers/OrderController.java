@@ -66,6 +66,20 @@ public class OrderController {
       return ResponseEntity.ok(order);
    }
 
+   @PutMapping("/{id}/free")
+   public ResponseEntity<Object> freeButers(@PathVariable Long id) {
+      log.info("Запрос отмены бронирования бутеров (id заказа={})", id);
+      checkAuth();
+      Order order = orderRepository.findById(id).orElseThrow(() -> new RuntimeException("Заказ с id=" + id + " не найден."));
+      for (Position position : order.getPositions()) {
+         Buter buter = buterRepository.findById(position.getButerId()).orElseThrow(() -> new RuntimeException("Бутер с id=" + id + " не найден."));
+         buter.setQuantity(buter.getQuantity() + position.getQuantity());
+         buterRepository.save(buter);
+      }
+      log.info("Бронирование бутеров отменено (id заказа={})", id);
+      return ResponseEntity.ok(order);
+   }
+
    @PutMapping("/{id}/paid")
    public ResponseEntity<Order> paidOrder(@PathVariable Long id) {
       log.info("Запрос подтверждения оплаты заказа (id заказа={})", id);
@@ -82,6 +96,16 @@ public class OrderController {
       checkAuth();
       Order order = orderRepository.findById(id).orElseThrow(() -> new RuntimeException("Заказ с id=" + id + " не найден."));
       order.setStatus(OrderStatus.DONE.name());
+      orderRepository.save(order);
+      return ResponseEntity.ok(order);
+   }
+
+   @PutMapping("/{id}/reject")
+   public ResponseEntity<Order> rejectOrder(@PathVariable Long id) {
+      log.info("Запрос отмены заказа (id заказа={})", id);
+      checkAuth();
+      Order order = orderRepository.findById(id).orElseThrow(() -> new RuntimeException("Заказ с id=" + id + " не найден."));
+      order.setStatus(OrderStatus.REJECTED.name());
       orderRepository.save(order);
       return ResponseEntity.ok(order);
    }
@@ -110,9 +134,6 @@ public class OrderController {
       for (PositionsInfo info : posInfos) {
          Buter buter = buterRepository.findById(info.getButerId())
                  .orElseThrow(() -> new RuntimeException("Бутер с id=" + info.getButerId() + " не найден."));
-         if (buter.getQuantity() < info.getQuantity()) {
-            return ResponseEntity.internalServerError().body("Бутеров \"" + buter.getName() + "\" недостаточно!");
-         }
          cost += buter.getPrice() * info.getQuantity();
          positions.add(new Position(order, buter.getId(), info.getQuantity()));
       }

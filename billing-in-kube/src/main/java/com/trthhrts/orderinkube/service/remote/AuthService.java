@@ -13,7 +13,7 @@ import static com.trthhrts.orderinkube.service.remote.RemoteServiceUtils.getBear
 @RequiredArgsConstructor
 public class AuthService {
 
-    final WebClient webClient;
+    private final WebClient webClient;
 
     @Value("${services.auth-service.url}")
     private String authUri;
@@ -40,23 +40,23 @@ public class AuthService {
                 .block();
     }
 
-    public Long deposit(long amount) {
+    public String deposit(long amount) {
         String token = getBearerTokenHeader();
         return webClient.put()
-                .uri( authUri + "/api/user/deposit/" + amount)
+                .uri( authUri + "/api/user/balance/deposit/" + amount)
                 .header("Authorization", token)
                 .retrieve()
-                .bodyToMono(Long.class)
+                .bodyToMono(String.class)
                 .block();
     }
 
-    public Long withdraw(long amount) {
+    public String withdraw(long amount) {
         String token = getBearerTokenHeader();
         return webClient.put()
-                .uri( authUri + "/api/user/withdraw/" + amount)
+                .uri( authUri + "/api/user/balance/withdraw/" + amount)
                 .header("Authorization", token)
                 .retrieve()
-                .bodyToMono(Long.class)
+                .bodyToMono(String.class)
                 .block();
     }
 }

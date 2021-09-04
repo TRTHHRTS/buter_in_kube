@@ -30,10 +30,30 @@ public class OrderService {
                 .block();
     }
 
+    public OrderInfo freeButers(Long orderId) {
+        String token = getBearerTokenHeader();
+        return WebClient.create(orderServiceUri).put()
+                .uri( "/api/order/" + orderId + "/free")
+                .header("Authorization", token)
+                .retrieve()
+                .bodyToMono(OrderInfo.class)
+                .block();
+    }
+
     public OrderInfo paidOrder(Long orderId) {
         String token = getBearerTokenHeader();
         return WebClient.create(orderServiceUri).put()
                 .uri( "/api/order/" + orderId + "/paid")
+                .header("Authorization", token)
+                .retrieve()
+                .bodyToMono(OrderInfo.class)
+                .block();
+    }
+
+    public OrderInfo rejectOrder(Long orderId) {
+        String token = getBearerTokenHeader();
+        return WebClient.create(orderServiceUri).put()
+                .uri( "/api/order/" + orderId + "/reject")
                 .header("Authorization", token)
                 .retrieve()
                 .bodyToMono(OrderInfo.class)

@@ -25,10 +25,24 @@ public class BillingController {
    public ResponseEntity<String> payOrder(@PathVariable Long orderId) {
       Long userId = authService.getUserId();
       OrderInfo orderInfo = orderService.getOrderInfo(orderId);
-      log.info("Оплата заказа (ID={}, userId={})", orderId, userId);
-      orderService.reserveButers(orderId);
-      log.info("Оплата заказа со счета пользователя (ID={}, amount={})", userId, orderInfo.getCost());
-      billingService.withdraw(orderInfo.getCost());
+      try {
+         log.info("Бронирование бутеров (ID заказа={}, userId={})", orderId, userId);
+         orderService.reserveButers(orderId);
+      } catch (Exception e) {
+         log.info("Ошибка при бронирование бутеров, заказ будет отменен (ID заказа={}, userId={})", orderId, userId);
+         orderService.rejectOrder(orderId);
+         throw e;
+      }
+      try {
+         log.info("Оплата заказа со счета пользователя (ID={}, amount={})", userId, orderInfo.getCost());
+         billingService.withdraw(orderInfo.getCost());
+      } catch (Exception e) {
+         log.info("Ошибка при оплате заказа, бронирование бутеров будет отменено (ID заказа={}, userId={})", orderId, userId);
+         orderService.freeButers(orderId);
+         log.info("Отмена заказа (ID заказа={}, userId={})", orderId, userId);
+         orderService.rejectOrder(orderId);
+         throw e;
+      }
       orderService.paidOrder(orderId);
       return ResponseEntity.ok("OK");
    }
