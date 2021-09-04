@@ -1,9 +1,9 @@
 package com.trthhrts.orderinkube.controllers;
 
 import com.trthhrts.orderinkube.dto.OrderInfo;
-import com.trthhrts.orderinkube.service.AuthService;
 import com.trthhrts.orderinkube.service.BillingService;
-import com.trthhrts.orderinkube.service.OrderService;
+import com.trthhrts.orderinkube.service.remote.AuthService;
+import com.trthhrts.orderinkube.service.remote.OrderService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -27,7 +27,8 @@ public class BillingController {
       OrderInfo orderInfo = orderService.getOrderInfo(orderId);
       log.info("Оплата заказа (ID={}, userId={})", orderId, userId);
       orderService.reserveButers(orderId);
-      billingService.withdraw(userId, orderInfo.getCost());
+      log.info("Оплата заказа со счета пользователя (ID={}, amount={})", userId, orderInfo.getCost());
+      billingService.withdraw(orderInfo.getCost());
       orderService.paidOrder(orderId);
       return ResponseEntity.ok("OK");
    }
@@ -42,7 +43,8 @@ public class BillingController {
    @PutMapping("/withdraw/{amount}")
    public void withdraw(@PathVariable Long amount) {
       Long userId = authService.getUserId();
-      billingService.withdraw(userId, amount);
+      log.info("Снятие средств со счета пользователя (ID={}, amount={})", userId, amount);
+      billingService.withdraw(amount);
    }
 
    @GetMapping("/balance")
